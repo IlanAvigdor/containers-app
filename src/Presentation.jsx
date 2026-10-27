@@ -396,58 +396,71 @@ export default function Presentation({ onSwitchToInventory }) {
                     <p className="regular-slide-subtitle">{currentSlide.subtitle}</p>
                   </div>
 
-                  <div className="tactical-video-frame">
+                  <div className="tactical-video-frame" style={{ position: 'relative' }}>
                     {videoSrc ? (
                       <video 
                         ref={videoRef}
                         src={videoSrc}
                         controls
                         autoPlay
+                        playsInline
+                        webkit-playsinline="true"
                         className="tactical-video-player"
                         onPlay={() => setIsPlaying(true)}
                         onPause={() => setIsPlaying(false)}
                       />
                     ) : (
-                      <div className="video-placeholder-content">
-                        <button 
-                          className="video-play-pulse-btn"
-                          onClick={() => fileInputRef.current?.click()}
-                          title="העלאת והפעלת סרטון"
-                        >
+                      <div className="video-placeholder-content" style={{ position: 'relative', width: '100%', height: '100%', minHeight: '260px' }}>
+                        {/* Direct touch input covering the entire frame for seamless mobile gallery opening */}
+                        <input 
+                          type="file" 
+                          accept="video/*,video/mp4,video/quicktime,video/webm" 
+                          style={{ 
+                            position: 'absolute', 
+                            inset: 0, 
+                            width: '100%', 
+                            height: '100%', 
+                            opacity: 0, 
+                            cursor: 'pointer', 
+                            zIndex: 25 
+                          }} 
+                          onChange={handleVideoUpload}
+                          aria-label="בחר סרטון מהגלריה"
+                        />
+                        <div className="video-play-pulse-btn" style={{ pointerEvents: 'none' }}>
                           <Play size={36} style={{ marginLeft: '-3px' }} />
-                        </button>
+                        </div>
                         <h3 className="video-frame-title">סרטון גדודי - גדוד 402 רשף</h3>
                         <p className="video-frame-subtitle">
-                          הסרטון הגדודי יועלה ויוקרן כאן. לחץ להעלאת קובץ וידאו מקומי לצפייה מיידית במסך.
+                          לחץ כאן לפתיחת הגלריה במכשיר ובחירת סרטון גדודי
                         </p>
                         
-                        <div className="video-actions-bar">
-                          <label className="video-upload-label">
+                        <div className="video-actions-bar" style={{ pointerEvents: 'none' }}>
+                          <div className="video-upload-label">
                             <Upload size={18} />
-                            <span>העלה סרטון וידאו (MP4 / WebM)</span>
-                            <input 
-                              type="file" 
-                              ref={fileInputRef} 
-                              accept="video/*" 
-                              style={{ display: 'none' }} 
-                              onChange={handleVideoUpload}
-                            />
-                          </label>
+                            <span>פתח גלריה לבחירת סרטון</span>
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
 
                   {videoSrc && (
-                    <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '0.75rem', position: 'relative' }}>
                       <button className="btn-tactical" onClick={handleTogglePlay}>
                         {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                        <span>{isPlaying ? 'השהה סרטון' : 'נגן סרטון'}</span>
+                        <span>{isPlaying ? 'השהה' : 'נגן'}</span>
                       </button>
-                      <button className="btn-tactical" onClick={() => fileInputRef.current?.click()}>
+                      <label className="btn-tactical" style={{ position: 'relative', overflow: 'hidden', cursor: 'pointer' }}>
                         <Upload size={16} />
-                        <span>החלף סרטון</span>
-                      </button>
+                        <span>החלף סרטון מהגלריה</span>
+                        <input 
+                          type="file" 
+                          accept="video/*,video/mp4,video/quicktime,video/webm" 
+                          style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }}
+                          onChange={handleVideoUpload}
+                        />
+                      </label>
                     </div>
                   )}
                 </div>
@@ -462,21 +475,9 @@ export default function Presentation({ onSwitchToInventory }) {
                   <div className="gallery-grid">
                     {[0, 1, 2].map((slotIdx) => {
                       const imgUrl = galleryImages[slotIdx];
-                      const inputId = `gallery-upload-input-${slotIdx}`;
                       return (
-                        <div className="gallery-card-slot" key={slotIdx}>
+                        <div className="gallery-card-slot" key={slotIdx} style={{ position: 'relative' }}>
                           <span className="gallery-badge-corner">0{slotIdx + 1}</span>
-                          <input 
-                            id={inputId}
-                            type="file" 
-                            accept="image/*"
-                            style={{ display: 'none' }}
-                            onChange={(e) => {
-                              if (e.target.files?.[0]) {
-                                handleImageUpload(slotIdx, e.target.files[0]);
-                              }
-                            }}
-                          />
                           {imgUrl ? (
                             <div className="gallery-filled-image-wrapper">
                               <img 
@@ -485,14 +486,20 @@ export default function Presentation({ onSwitchToInventory }) {
                                 className="gallery-uploaded-img"
                               />
                               <div className="gallery-image-actions-overlay">
-                                <button 
-                                  className="btn-tactical"
-                                  onClick={() => document.getElementById(inputId)?.click()}
-                                  title="החלף תמונה"
-                                >
+                                <label className="btn-tactical" style={{ position: 'relative', overflow: 'hidden', cursor: 'pointer' }}>
                                   <RotateCw size={15} />
                                   <span>החלף</span>
-                                </button>
+                                  <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }}
+                                    onChange={(e) => {
+                                      if (e.target.files?.[0]) {
+                                        handleImageUpload(slotIdx, e.target.files[0]);
+                                      }
+                                    }}
+                                  />
+                                </label>
                                 <button 
                                   className="btn-tactical"
                                   style={{ borderColor: '#ef4444', color: '#ff8b8b' }}
@@ -505,16 +512,26 @@ export default function Presentation({ onSwitchToInventory }) {
                               </div>
                             </div>
                           ) : (
-                            <div 
+                            <label 
                               className="gallery-empty-state"
-                              onClick={() => document.getElementById(inputId)?.click()}
+                              style={{ position: 'relative', width: '100%', height: '100%', cursor: 'pointer' }}
                             >
+                              <input 
+                                type="file" 
+                                accept="image/*"
+                                style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 15 }}
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) {
+                                    handleImageUpload(slotIdx, e.target.files[0]);
+                                  }
+                                }}
+                              />
                               <div className="gallery-upload-icon-btn">
                                 <ImagePlus size={30} />
                               </div>
                               <div className="gallery-slot-title">העלאת תמונה 0{slotIdx + 1}</div>
-                              <div className="gallery-slot-hint">לחץ להעלאת תמונת שטח (JPG, PNG)</div>
-                            </div>
+                              <div className="gallery-slot-hint">לחץ כאן לפתיחת הגלריה במכשיר</div>
+                            </label>
                           )}
                         </div>
                       );
